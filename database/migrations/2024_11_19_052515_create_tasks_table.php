@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tasks', function (Blueprint $table) {
-            $table->unsignedInteger('user_id');
+            $table->foreignId('user_id');
             $table->increments('id');
             $table->string('title',50);
             $table->text('description')->nullable();
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->boolean('is_paid')->default(false);
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->on('users')->references('id');
         });
     }
 
