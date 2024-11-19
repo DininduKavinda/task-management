@@ -7,32 +7,19 @@
         </h2>
 
         <div>
-            <table class="table">
+            <table id="tblData" class="display">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Title</th>
-                        <th scope="col">Priority</th>
-                        <th scope="col">Description</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th>Paid</th>
-                        <th>Action</th>
+                        <th>title</th>
+
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach()
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                  
-                </tbody>
+
             </table>
         </div>
+        @section('js')
+            <script src="resource/js/tasks.js"></script>
+        @endsection
     </x-slot>
-    @section('js')
-    @endsection
+
 </x-app-layout>
