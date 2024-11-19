@@ -6,21 +6,31 @@
             {{ __('Tasks') }}
         </h2>
 
-        <div>
-            <table id="tblData">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <tH>Titile</tH>
-                        <th>Description</th>
-                        <th>Due</th>
-                        <th>Priority</th>
-                        <th>Complete</th>
-                        <th>Paid</th>
-                        <th>Edit</th>
-                    </tr>
-                </thead>
-            </table>
+        <div class="d-flex flex-row">
+
+            <form action="{{ route('tasks.index') }}" class="d-flex flex-row" method="get">
+                <input type="text" class="form-control" id="priority" name="priority">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+            <a class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New
+            </a>
+            
+        </div>
+        <table id="tblData">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <tH>Titile</tH>
+                    <th>Description</th>
+                    <th>Due</th>
+                    <th>Priority</th>
+                    <th>Complete</th>
+                    <th>Paid</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+        </table>
         </div>
 
         <script>
@@ -166,11 +176,11 @@
             $(document).on('click', '.edit-button', function() {
                 var id = $(this).data('id');
                 $.ajax({
-                    url: '/tasks/getById?id=' + id,
+                    url: '/tasks/' + id,
                     type: 'GET',
                     success: function(result) {
                         $("#exampleModal input[name='Customer.Id']").val(result.data.id);
-                     
+
                         $("#exampleModal").modal({
                             backdrop: 'static'
                         });
@@ -181,8 +191,6 @@
                     }
                 });
             });
-
-            
         </script>
 
     </x-slot>

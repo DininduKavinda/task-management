@@ -6,15 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequest;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TaskController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = Task::orderBy('priority')->get();
+        
+        $priority = $request->input('priority');
+
+        $query = Task::query();
+
+        if ($priority) {
+
+            $query->where('priority', $priority);
+        }
+
+        $tasks = $query->oldest('id')->get();
 
         return response()->json([
             'data' => $tasks,
@@ -104,18 +115,16 @@ class TaskController extends Controller
             'is_complete' => true,
         ]);
 
-
         return response()->json(['message', 'Updated successfully'], 200);
     }
 
-    public function completePayment( $id)
+    public function completePayment($id)
     {
         $task = Task::find($id);
         $update = $task->update([
             'is_paid' => true,
         ]);
-        if($update) {
-
+        if ($update) {
         }
         return response()->json(['message', 'Updated successfully'], 200);
     }
