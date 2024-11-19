@@ -115,7 +115,9 @@ class TaskController extends Controller
         $update = $task->update([
             'is_paid' => true,
         ]);
-
+        if($update) {
+            
+        }
         return response()->json(['message', 'Updated successfully'], 200);
     }
 }
