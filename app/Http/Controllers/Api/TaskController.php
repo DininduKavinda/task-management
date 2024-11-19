@@ -36,7 +36,7 @@ class TaskController extends Controller
     {
         //
         $validatedData = $request->validated();
-        
+
         $create_task = Task::create($validatedData);
 
         return response()->json([
@@ -50,9 +50,9 @@ class TaskController extends Controller
     public function show(Task $task)
     {
         //
-       return response()->json([
-        'task' => $task
-       ]);
+        return response()->json([
+            'task' => $task
+        ]);
     }
 
     /**
@@ -76,7 +76,6 @@ class TaskController extends Controller
         return response()->json([
             'task' => $task_update,
         ]);
-
     }
 
     /**
@@ -85,7 +84,18 @@ class TaskController extends Controller
     public function destroy(Task $task)
     {
         $delete = $task->delete();
+
+        response()->json(['message', 'Deleted successfully'], 200);
+    }
+
+    public function completeMailer(Request $request, $id)
+    {
+        $task = Task::find($id);
+        $update = $task->update([
+            'is_complete' => true,
+        ]);
+
         
-        response()->json(['message','Deleted successfully'], 200);
+        return response()->json(['message', 'Updated successfully'], 200);
     }
 }
