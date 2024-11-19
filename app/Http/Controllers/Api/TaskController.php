@@ -39,6 +39,16 @@ class TaskController extends Controller
 
         $create_task = Task::create($validatedData);
 
+        $stripe = new \Stripe\StripeClient('sk_test_51MTT8NC5luYyKMWDxPt9lzHPXD6GrPBsllDplrWQywfeteA7WIZmvKp2pQ2GjeO83joY8Q8n9e0DNio2Omzw1RkW00F2VHQyCs');
+
+        if ($validatedData['priority'] == 'High') {
+            $stripe->products->create([
+                'name' => $validatedData['title'],
+                'default_price_data[currency]' => 'eur',
+                'default_price_data[unit_amount]' =>  '10'
+
+            ]);
+        };
         return response()->json([
             'task' => $create_task,
         ]);
@@ -95,7 +105,17 @@ class TaskController extends Controller
             'is_complete' => true,
         ]);
 
-        
+
+        return response()->json(['message', 'Updated successfully'], 200);
+    }
+
+    public function completePayment(Request $request, $id)
+    {
+        $task = Task::find($id);
+        $update = $task->update([
+            'is_paid' => true,
+        ]);
+
         return response()->json(['message', 'Updated successfully'], 200);
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\Billable;
 
 class Task extends Model
 {
+    use Billable;
     protected $fillable = [
         'user_id',
         'title',

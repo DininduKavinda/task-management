@@ -11,3 +11,5 @@ Route::get('/user', function (Request $request) {
 Route::apiResource('tasks', TaskController::class);
 
 Route::post('/tasks/{id}/complete', [TaskController::class, 'completeMailer'])->name('completeMailer');
+
+Route::post('/tasks/{id}/pay', [TaskController::class, 'completePayment'])->name('compltePayment');
