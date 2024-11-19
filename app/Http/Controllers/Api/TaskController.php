@@ -17,7 +17,7 @@ class TaskController extends Controller
         $tasks = Task::orderBy('priority')->get();
 
         return response()->json([
-            'tasks' => $tasks,
+            'data' => $tasks,
         ]);
     }
 
@@ -46,7 +46,6 @@ class TaskController extends Controller
                 'name' => $validatedData['title'],
                 'default_price_data[currency]' => 'eur',
                 'default_price_data[unit_amount]' =>  '10'
-
             ]);
         };
         return response()->json([
@@ -109,14 +108,14 @@ class TaskController extends Controller
         return response()->json(['message', 'Updated successfully'], 200);
     }
 
-    public function completePayment(Request $request, $id)
+    public function completePayment( $id)
     {
         $task = Task::find($id);
         $update = $task->update([
             'is_paid' => true,
         ]);
         if($update) {
-            
+
         }
         return response()->json(['message', 'Updated successfully'], 200);
     }
