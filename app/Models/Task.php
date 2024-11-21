@@ -16,6 +16,7 @@ class Task extends Model
         'priority',
         'is_complete',
         'is_paid',
+        'stripe_product_id'
     ];
 
     public function users()

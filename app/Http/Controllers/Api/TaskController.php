@@ -7,6 +7,8 @@ use App\Http\Requests\TaskRequest;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 use Stripe\StripeClient;
 
 class TaskController extends Controller
@@ -24,7 +26,7 @@ class TaskController extends Controller
     public function index(Request $request)
     {
 
-         $priority = $request->input('priority');
+        $priority = $request->input('priority');
 
         $query = Task::query();
 
@@ -148,12 +150,35 @@ class TaskController extends Controller
 
     public function completePayment($id)
     {
-        $task = Task::find($id);
-        $update = $task->update([
-            'is_paid' => true,
-        ]);
-        if ($update) {
+        $task = Task::findOrFail($id);
+
+        // Ensure the task has a Stripe product ID associated
+        if (!$task->stripe_product_id) {
+            return response()->json(['message' => 'Stripe product not found for this task.'], 404);
         }
-        return response()->json(['message', 'Updated successfully'], 200);
+
+        // Set Stripe API key
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        try {
+            // Create a payment intent
+            $paymentIntent = PaymentIntent::create([
+                'amount' => 1000, // Amount in cents (for $10)
+                'currency' => 'usd',
+                'description' => 'Payment for task: ' . $task->title,
+                'metadata' => [
+                    'task_id' => $task->id,
+                    'product_id' => $task->stripe_product_id,
+                ],
+            ]);
+
+            // Return the client secret for payment confirmation
+            return response()->json([
+                'client_secret' => $paymentIntent->client_secret,
+                'message' => 'Payment Intent created successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }
