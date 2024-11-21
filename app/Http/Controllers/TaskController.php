@@ -64,4 +64,23 @@ class TaskController extends Controller
     {
         //
     }
+
+    public function showPaymentView($id)
+    {
+        $task = Task::findOrFail($id);
+
+        return view('tasks.payment', compact('task'));
+    }
+
+    public function confirmPayment(Request $request, $id)
+{
+    $task = Task::findOrFail($id);
+
+    $task->update([
+        'is_paid' => true,
+    ]);
+
+    return redirect()->route('tasks.index')->with('success', 'Task marked as paid successfully.');
+}
+
 }

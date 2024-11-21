@@ -7,21 +7,28 @@ use App\Http\Requests\TaskRequest;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Stripe\StripeClient;
 
 class TaskController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    protected $stripe;
+
+    public function __construct()
+    {
+        // Initialize the Stripe client
+        $this->stripe = new StripeClient(env('STRIPE_SECRET'));
+    }
     public function index(Request $request)
     {
-        
-        $priority = $request->input('priority');
+
+         $priority = $request->input('priority');
 
         $query = Task::query();
 
         if ($priority) {
-
             $query->where('priority', $priority);
         }
 
@@ -48,19 +55,26 @@ class TaskController extends Controller
         //
         $validatedData = $request->validated();
 
-        $create_task = Task::create($validatedData);
+        // Create a new task
+        $task = Task::create($validatedData);
 
-        $stripe = new \Stripe\StripeClient('sk_test_51MTT8NC5luYyKMWDxPt9lzHPXD6GrPBsllDplrWQywfeteA7WIZmvKp2pQ2GjeO83joY8Q8n9e0DNio2Omzw1RkW00F2VHQyCs');
-
-        if ($validatedData['priority'] == 'High') {
-            $stripe->products->create([
+        // Create a Stripe product if the priority is "High"
+        if ($validatedData['priority'] === 'High') {
+            $stripeProduct = $this->stripe->products->create([
                 'name' => $validatedData['title'],
-                'default_price_data[currency]' => 'eur',
-                'default_price_data[unit_amount]' =>  '10'
+                'description' => $validatedData['description'] ?? 'No description',
+                'default_price_data' => [
+                    'currency' => 'usd',
+                    'unit_amount' => 1000, // $10 in cents
+                ],
             ]);
-        };
+
+            // Attach Stripe product ID to the task
+            $task->update(['stripe_product_id' => $stripeProduct->id]);
+        }
+
         return response()->json([
-            'task' => $create_task,
+            'task' => $task,
         ]);
     }
 
@@ -91,10 +105,19 @@ class TaskController extends Controller
         //
         $validatedData = $request->validated();
 
-        $task_update = $task->update($validatedData);
+        // Update the task
+        $task->update($validatedData);
+
+        // Update the Stripe product if the priority is "High"
+        if ($task->priority === 'High' && $task->stripe_product_id) {
+            $this->stripe->products->update($task->stripe_product_id, [
+                'name' => $validatedData['title'],
+                'description' => $validatedData['description'] ?? 'No description',
+            ]);
+        }
 
         return response()->json([
-            'task' => $task_update,
+            'task' => $task,
         ]);
     }
 
@@ -103,9 +126,14 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        $delete = $task->delete();
+        if ($task->stripe_product_id) {
+            $this->stripe->products->delete($task->stripe_product_id);
+        }
 
-        response()->json(['message', 'Deleted successfully'], 200);
+        // Delete the task
+        $task->delete();
+
+        return response()->json(['message' => 'Deleted successfully'], 200);
     }
 
     public function completeMailer(Request $request, $id)

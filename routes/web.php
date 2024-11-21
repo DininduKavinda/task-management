@@ -18,6 +18,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('tasks', TaskController::class);
+    Route::get('/tasks/{id}/pay', [TaskController::class, 'showPaymentView'])->name('tasks.pay.view');
+Route::post('/tasks/{id}/pay', [TaskController::class, 'confirmPayment'])->name('tasks.pay.confirm');
 });
 
 

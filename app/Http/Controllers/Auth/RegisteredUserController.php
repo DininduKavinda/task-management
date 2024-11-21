@@ -40,7 +40,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-        $stripeCustomer = $user->createAsStripeCustomer();
+        $stripeCustomer = $user->createOrGetStripeCustomer();
 
         event(new Registered($user));
 

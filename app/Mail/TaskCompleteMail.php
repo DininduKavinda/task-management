@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Task;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -13,15 +14,26 @@ use Illuminate\Queue\SerializesModels;
 class TaskCompleteMail extends Mailable
 {
     use Queueable, SerializesModels;
-
+    public $task;
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(Task $task)
     {
         //
+        $this->task = $task;
     }
 
+    public function build()
+    {
+        return $this->subject('Task Completed Notification')
+                    ->view('emails.task_completed')
+                    ->with([
+                        'title' => $this->task->title,
+                        'description' => $this->task->description,
+                        'dueDate' => $this->task->due_date,
+                    ]);
+    }
     /**
      * Get the message envelope.
      */
