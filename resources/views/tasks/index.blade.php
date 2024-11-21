@@ -6,10 +6,15 @@
 
         <div class="d-flex flex-row mb-3">
             <form action="{{ route('tasks.index') }}" class="d-flex flex-row" method="get">
-                <input type="text" class="form-control" id="priority" name="priority" placeholder="Search by Priority">
+                <select name="priority" id="priority">
+                    <option value="">Select Priority</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
                 <button type="submit" class="btn btn-primary mx-2">Submit</button>
             </form>
-            <button class="btn btn-primary"  data-toggle="modal" data-target="#taskModal" id="createTaskButton">
+            <button class="btn btn-primary" id="createTaskButton">
                 <i class="bi bi-plus-circle"></i> Add New
             </button>
         </div>
@@ -69,7 +74,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
                             <button type="submit" class="btn btn-primary" id="saveTaskButton"></button>
                         </div>
                     </form>
@@ -161,26 +166,37 @@
                             data: 'due_date'
                         },
                         {
-                            data: 'priority'
-                        },
-                        {
-                            data: 'id',
+                            data: 'priority',
                             render: function(data) {
-                                return `
-        <div class="btn-group" role="group">
-            <a href="/tasks/${data}/pay" class="btn btn-warning mx-2">Pay</a>
-        </div>
-    `;
+                                let badgeClass = {
+                                    'Low': 'badge-success',
+                                    'Medium': 'badge-warning',
+                                    'High': 'badge-danger'
+                                } [data] || 'badge-secondary';
+                                return `<span class="badge ${badgeClass}">${data}</span>`;
                             }
                         },
-
                         {
                             data: 'id',
                             render: function(data, type, row) {
+                                if (row.is_paid) {
+                                    return `<span class="badge badge-success">Paid</span>`;
+                                }
                                 return `
-                           <button class="btn btn-warning mx-2 edit-button" data-id="${data}" data-toggle="modal" data-target="#taskModal">Edit</button>
-                            <button onClick="deleteTask('/api/tasks/${data}')" class="btn btn-danger btn-sm">Delete</button>
-                        `;
+                <div class="btn-group" role="group">
+                    <a href="/tasks/${data}/pay" class="btn btn-warning mx-2">Pay</a>
+                </div>`;
+                            }
+                        },
+                        {
+                            data: 'id',
+                            render: function(data, type, row) {
+                                if (row.is_complete) {
+                                    return `<span class="badge badge-info">Completed</span>`;
+                                }
+                                return `
+                <button class="btn btn-warning mx-2 edit-button" data-id="${data}" data-toggle="modal" data-target="#taskModal">Edit</button>
+                <button onClick="deleteTask('/api/tasks/${data}')" class="btn btn-danger btn-sm">Delete</button>`;
                             }
                         }
                     ]
